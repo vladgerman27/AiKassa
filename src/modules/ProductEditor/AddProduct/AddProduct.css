@@ -1,0 +1,39 @@
+.AddProduct {
+    display: flex;
+}
+
+.AddProduct-header {
+    width: 77%; 
+    height: 40px;
+    background-color: #F0F0F0;
+    display: flex;
+    padding: 10px 0 0 5px;
+}
+
+.AddProduct-header nav:nth-child(1) {
+    font-size: 16px;
+    color: #1976d2;
+    font-weight: 700;
+    margin-right: 10px;
+}
+
+.AddProduct-header nav:nth-child(2) {
+    font-size: 16px;
+    color: #ccc;
+    font-weight: 700;
+    margin-right: 10px;
+}
+
+.AddProduct-header nav:nth-child(3) {
+    font-size: 16px;
+    color: #777;
+    font-weight: 700;
+}
+
+.AddProduct-content {
+    display: block;
+}
+
+.AddProduct input {
+    display: block;
+}

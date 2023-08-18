@@ -1,0 +1,42 @@
+.dashboard {
+    margin-left: 0;
+    width: 320px;
+    height: 1000px;
+    background-color: #F0F0F0;
+    padding: 20px 0px 0px 30px;
+}
+
+.blocks {
+    display: grid;
+    grid-template-columns: 100px 100px 100px;
+}
+
+.block {
+    width: 85px;
+    height: 85px;
+    background-color: #e4eaf4;
+    border-radius: 15px;
+    margin: 10px 20px 10px 0px;
+}
+
+.block-title {
+    font-size: 12px;
+    font-weight: bold;
+    color: #1976d2;
+    text-decoration: none !important;
+    text-align: center;
+}
+
+.block-link {
+    text-decoration: none;
+}
+
+.block-link:hover {
+    text-decoration: underline;
+}
+
+.block img {
+    width: 27px;
+    height: 27px;
+    margin: 10px 0 0px 27px;
+}
