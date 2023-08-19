@@ -65,6 +65,37 @@ app.post('/login', async (req, res) => {
     res.json({ token });
   });
 
+  //add categories
+  app.post('/categories', async (req, res) => {
+    const { category } = req.body;
+
+    const client = await MongoClient.connect(dbUri);
+    const db = client.db('AiKassa');
+    const categories = db.collection('Categories');
+
+    const result = await categories.insertOne({ category });
+
+    const token = jwt.sign({ _id: result.insertedId, category }, "token");
+ 
+    res.json({ token });
+  });
+
+  //show categories
+  app.get('/categories', async (req, res) => {
+    try {
+      const client = await MongoClient.connect(dbUri);
+      const db = client.db('AiKassa');
+      const categories = db.collection('Categories');
+  
+      const data = await categories.find({}).toArray();
+  
+      res.json(data);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'An error occurred' });
+  }
+  });
+
   function verifyToken(req, res, next) {
     const token = req.headers.authorization?.split(' ')[1];
     
