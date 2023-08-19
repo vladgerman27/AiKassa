@@ -23,24 +23,21 @@ export default function Singup({ handleSetIsAuth }) {
       setSingupMis("Примите условия")
     } else {
       try {
-        const formData = new FormData();
-        formData.append("email", email);
-        formData.append("password", password);
-        formData.append("name", name);
-        formData.append("phone", phone);
-  
-        const response = await axios.post('http://localhost:8080/register', formData, {
-          headers: {
-            "Content-Type": "multipart/form-data"
-          }
-        });
+        const data = {
+          email: email,
+          password: password,
+          name: name,
+          phone: phone
+      };
 
-        localStorage.setItem('isAuth', response.data.token);
-        localStorage.setItem('userName', name);
-        localStorage.setItem('userPhone', phone);
-        handleSetIsAuth(response.data.token);
-        setAccount(true);
-        navigate('/product-editor')
+      const response = await axios.post('http://localhost:8080/register', data);
+
+      localStorage.setItem('isAuth', response.data.token);
+      localStorage.setItem('userName', name);
+      localStorage.setItem('userPhone', phone);
+      handleSetIsAuth(response.data.token);
+      setAccount(true);
+      navigate('/product-editor');
       } catch (error) {  
         console.error(error);
         setSingupMis("Пользователь с таким email уже зарегистрирован");
