@@ -15,37 +15,29 @@ export default function Singup({ handleSetIsAuth }) {
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
 
-  // const [formData, setFormData] = useState({
-  //   name: name,
-  //   email: email,
-  //   password: password,
-  //   phone: phone
-  // });
-
   const Register = async (e) => {
     e.preventDefault();
     if (name === "" || phone == "" || email === "" || password === "" || confirmPassword === "" || confirmPassword !== password) {
       setSingupMis("Пропущено поле или введен неверный пароль. Повторите ввод.")
+    } else if (!document.querySelector("input[name='accept']:checked")) {
+      setSingupMis("Примите условия")
     } else {
       try {
-        const formData = new FormData();
-        formData.append("email", email);
-        formData.append("password", password);
-        formData.append("name", name);
-        formData.append("phone", phone);
-  
-        const response = await axios.post('http://localhost:8080/register', formData, {
-          headers: {
-            "Content-Type": "multipart/form-data"
-          }
-        });
+        const data = {
+          email: email,
+          password: password,
+          name: name,
+          phone: phone
+      };
 
-        localStorage.setItem('isAuth', response.data.token);
-        localStorage.setItem('userName', name);
-        localStorage.setItem('userPhone', phone);
-        handleSetIsAuth(response.data.token);
-        setAccount(true);
-        navigate('/product-editor')
+      const response = await axios.post('http://localhost:8080/register', data);
+
+      localStorage.setItem('isAuth', response.data.token);
+      localStorage.setItem('userName', name);
+      localStorage.setItem('userPhone', phone);
+      handleSetIsAuth(response.data.token);
+      setAccount(true);
+      navigate('/product-editor');
       } catch (error) {  
         console.error(error);
         setSingupMis("Пользователь с таким email уже зарегистрирован");
@@ -68,7 +60,7 @@ export default function Singup({ handleSetIsAuth }) {
         <div className='singup-bottom'>
           <div className='rules'>
             <div className='accept'>
-              <input type='checkbox'/>
+              <input type='checkbox' name='accept'/>
               <nav>Я принимаю условия</nav>
             </div>
             <nav></nav>
