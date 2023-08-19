@@ -1,14 +1,31 @@
 import './ProductEditor.css'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Modal from 'react-modal'
 import { NavLink  } from 'react-router-dom'
+import axios from 'axios'
 
 import Dashboard from '../Dashboard/Dashboard'
 
 export default function ProductEditor() {
   const [modalImport, setModalImport] = useState(false);
   const [modalGroup, setModalGroup] = useState(false);
+
+  const [category, setCategory] = useState('')
+
+  const AddCategory = async (e)=> {
+    e.preventDefault();
+    try {
+      const data = {
+        category: category
+      }
+
+      await axios.post('http://localhost:8080/categories', data)
+      console.log('Category added successfully')
+    } catch (error) {  
+      console.error(error);
+    }
+  }
 
   return (
     <div className='ProductEditor'>
@@ -30,14 +47,14 @@ export default function ProductEditor() {
           <nav>Добавить группу товаров</nav>
           <button onClick={() => setModalGroup(false)}>x</button>
         </div>
-        <input className='add-group' placeholder='Наименование группы товаров' />
+        <input className='add-group' placeholder='Наименование группы товаров' value={category} onChange={(e) => setCategory(e.target.value)}/>
         <label><input type='checkbox' /><span>Скрыть от продаж</span></label>
         <nav>Подходит для товаров, не продаваемых отдельно. Например, составные продукты, используемые в блюдах</nav>
         <nav>Показывать эту группу товаров в филиалах</nav>
         <label><input type='checkbox' /><span>Отметить все филиалы</span></label>
         <label><input type='checkbox' /><span>Головной офис</span></label>
         <div className='modal-bottom'>
-          <button>Сохранить</button>
+          <button onClick={AddCategory}>Сохранить</button>
         </div>
       </Modal>
 
