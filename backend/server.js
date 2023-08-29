@@ -58,24 +58,24 @@ app.post('/login', async (req, res) => {
         return res.status(401).json({ error: 'User already exists' });
     }
 
-    const result = await users.insertOne({ email, password, name, phone });
+    const user = await users.insertOne({ email, password, name, phone });
 
-    const token = jwt.sign({ _id: result.insertedId, email, name, phone }, "token");
+    const token = jwt.sign({ _id: user.insertedId, email, name, phone }, "token");
  
     res.json({ token });
   });
 
   //add categories
   app.post('/categories', async (req, res) => {
-    const { category } = req.body;
+    const { name } = req.body;
 
     const client = await MongoClient.connect(dbUri);
     const db = client.db('AiKassa');
-    const categories = db.collection('Categories');
+    const categories = db.collection('categories_item');
 
-    const result = await categories.insertOne({ category });
+    const category = await categories.insertOne({ name });
 
-    const token = jwt.sign({ _id: result.insertedId, category }, "token");
+    const token = jwt.sign({ _id: category.insertedId, name }, "token");
  
     res.json({ token });
   });
@@ -85,7 +85,7 @@ app.post('/login', async (req, res) => {
     try {
       const client = await MongoClient.connect(dbUri);
       const db = client.db('AiKassa');
-      const categories = db.collection('Categories');
+      const categories = db.collection('categories_item');
   
       const data = await categories.find({}).toArray();
   
@@ -95,6 +95,58 @@ app.post('/login', async (req, res) => {
       res.status(500).json({ error: 'An error occurred' });
   }
   });
+
+  //add products
+  app.post('/products', async (req, res) => {
+    const { name, category, unit, cost, count, vendorСode, code, brand, barcode, describtion, note} = req.body;
+
+    const client = await MongoClient.connect(dbUri);
+    const db = client.db('AiKassa');
+    const products = db.collection('Products');
+
+    const product = await products.insertOne({ name, category, unit, cost, count, vendorСode, code, brand, barcode, describtion, note });
+
+    const token = jwt.sign({ _id: product.insertedId, name, category, unit, cost, count, vendorСode, code, brand, barcode, describtion, note }, "token");
+ 
+    res.json({ token });
+  });
+
+  //show products
+  app.get('/products', async (req, res) => {
+    try {
+      const client = await MongoClient.connect(dbUri);
+      const db = client.db('AiKassa');
+      const products = db.collection('Products');
+  
+      const data = await products.find({}).toArray();
+  
+      res.json(data);
+  } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'An error occurred' });
+  }
+  });
+
+  //delete product
+  app.delete('/products/:id', async (req, res) => {
+    const productId = req.params.id;
+
+    const client = await MongoClient.connect(dbUri);
+    const db = client.db('AiKassa');
+    const products = db.collection('Products');
+
+    try {
+        const result = await products.deleteOne({ _id: new ObjectId(productId) });
+        if (result.deletedCount === 1) {
+            res.json({ message: 'Product deleted successfully' });
+        } else {
+            res.status(404).json({ message: 'Product not found' });
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: 'An error occurred' });
+    }
+});
 
   function verifyToken(req, res, next) {
     const token = req.headers.authorization?.split(' ')[1];
