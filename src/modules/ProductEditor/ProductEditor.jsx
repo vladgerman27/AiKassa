@@ -10,14 +10,31 @@ import Dashboard from '../Dashboard/Dashboard'
 export default function ProductEditor() {
   const [modalImport, setModalImport] = useState(false);
   const [modalGroup, setModalGroup] = useState(false);
+  const [modalBtn, setModalBtn] = useState(false);
 
   const [category, setCategory] = useState('')
+  const [products, setProducts] = useState([])
+
+  const [name, setName] = useState('')
+  const [vendorСode, setVendorСode] = useState('')
+  const [barcode, setBarcode] = useState('')
+  const [selectUnit, setSelectUnit] = useState('')
+  const [cost, setCost] = useState('')
+
+  const [searchProduct, setSearchProduct] = useState('');
+
+  useEffect(() => {
+    fetch('http://localhost:8080/products')
+      .then(res => res.json())
+      .then(data => setProducts(data))
+      .catch(error => console.log(error));
+  }, []);
 
   const AddCategory = async (e)=> {
     e.preventDefault();
     try {
       const data = {
-        category: category
+        name: category
       }
 
       await axios.post('http://localhost:8080/categories', data)
@@ -26,6 +43,60 @@ export default function ProductEditor() {
       console.error(error);
     }
   }
+
+  const handleSelectUnit = (event) => {
+    setSelectUnit(event.target.value);
+  };
+
+  const SaveProduct = async (e)=> {
+    e.preventDefault();
+    try {
+      const data = {
+        name: name,
+        vendorСode: vendorСode,
+        barcode: barcode,
+        unit: selectUnit,
+        cost: cost,
+      }
+
+      await axios.post('http://localhost:8080/products', data)
+      fetch('http://localhost:8080/products')
+          .then(res => res.json())
+          .then(data => setProducts(data))
+          .catch(error => console.log(error));
+      console.log('Product added successfully')
+    } catch (error) {  
+      console.error(error);
+    }
+  }
+
+  const DeleteProduct = async (productId) => {
+    try {
+      setModalBtn(false)
+      await axios.delete(`http://localhost:8080/products/${productId}`);
+        fetch('http://localhost:8080/products')
+          .then(res => res.json())
+          .then(data => setProducts(data))
+          .catch(error => console.log(error));
+      console.log('Product deleted successfully');
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const SearchProductChange = (e) => {
+    setSearchProduct(e.target.value);
+  };
+
+  const filteredProducts = products.filter(product => {
+    return (
+      product.name.toLowerCase().includes(searchProduct.toLowerCase()) ||
+      product.vendorСode.toLowerCase().includes(searchProduct.toLowerCase()) ||
+      product.barcode.toLowerCase().includes(searchProduct.toLowerCase()) ||
+      product.unit.toLowerCase().includes(searchProduct.toLowerCase()) ||
+      product.cost.toLowerCase().includes(searchProduct.toLowerCase())
+    )
+  });
 
   return (
     <div className='ProductEditor'>
@@ -58,6 +129,8 @@ export default function ProductEditor() {
         </div>
       </Modal>
 
+      
+
       <div className='ProductEditor-content'>
         <header className='ProductEditor-header'>
           <div className='ProductEditor-header-left'>
@@ -80,7 +153,7 @@ export default function ProductEditor() {
         </header>
 
         <div className='ProductEditor-main-content'>
-          <input className='search' placeholder='Поиск товара' />
+          <input className='search' placeholder='Поиск товара' value={searchProduct} onChange={SearchProductChange}/>
           <table className='products-table'>
             <tbody>
               <tr className='table-head'>
@@ -91,30 +164,47 @@ export default function ProductEditor() {
                 <th className='th5'>ЦЕНА РОЗНИЦА</th>
                 <th className='th6'></th>
               </tr>
+              {filteredProducts.map(product => (
+                <tr key={product._id}>
+                  <td>{product.name}</td>
+                  <td>{product.vendorСode}</td>
+                  <td>{product.barcode}</td>
+                  <td>{product.unit}</td>
+                  <td>{product.cost}тг</td>
+                  <td>
+                    <button className='editBtn' onClick={() => setModalBtn(true)}><img /></button>
+                    <Modal className='ProductEditor-modal' isOpen={modalBtn} onRequestClose={() => setModalBtn(false)}>
+                      <button onClick={() => DeleteProduct(product._id)}>Удалить товар</button>
+                    </Modal>
+                  </td>
+                </tr>
+            ))}
             </tbody>
           </table>
 
           <div className='add-product'>
-            <input className='th1' placeholder='Наименование'/>
-            <input className='th2' placeholder='Артикул'/>
-            <input className='th3' placeholder='Штрихкод'/>
-            <select className='th4'>
-              <option>шт</option>
-              <option>кор</option>
-              <option>уп</option>
-              <option>К-т</option>
-              <option>г</option>
-              <option>кг</option>
-              <option>т</option>
-              <option>л</option>
-              <option>мл</option>
-              <option>м2</option>
-              <option>м3</option>
-              <option>см</option>
-              <option>м</option>
+            <input className='th1' placeholder='Наименование'  value={name} onChange={(e) => setName(e.target.value)}/>
+            <input className='th2' placeholder='Артикул'  value={vendorСode} onChange={(e) => setVendorСode(e.target.value)}/>
+            <input className='th3' placeholder='Штрихкод' value={barcode} onChange={(e) => setBarcode(e.target.value)}/>
+            <select value={selectUnit} onChange={handleSelectUnit}>
+              <option>Единица измерения</option>
+              <option value='шт'>шт</option>
+              <option value='Коробка'>Коробка</option>
+              <option value='уп'>уп</option>
+              <option value='Комплект'>Комплект</option>
+              <option value='г'>г</option>
+              <option value='кг'>кг</option>
+              <option value='т'>т</option>
+              <option value='л'>л</option>
+              <option value='мл'>мл</option>
+              <option value='м2'>м2</option>
+              <option value='м3'>м3</option>
+              <option value='см'>см</option>
+              <option value='м'>м</option>
+              <option value='Лист'>Лист</option>
             </select>
-            <input className='th5' placeholder='Розничная'/>
-            <button>Добавить товар</button>
+            <input className='th5' placeholder='Розничная' type='number'  value={cost} onChange={(e) => setCost(e.target.value)}/>
+            <button onClick={SaveProduct}>Добавить товар</button>
           </div>
         </div>
       </div>
